@@ -1,4 +1,5 @@
 from diff_match_patch import diff_match_patch
+from pprint import pprint
 
 DMP = diff_match_patch()
 DMP.Match_Threshold = 0.0
@@ -19,4 +20,13 @@ patches = DMP.patch_make(src, patched)
 print(len(patches), "patches")
 
 # for patch in patches:
-#     print(patch)
+#     print(patch.start1, patch.start2, patch.length1, patch.length2)
+
+def line_diff(source, patched):
+    dmp = diff_match_patch()
+    a = dmp.diff_linesToChars(source, patched)
+    diffs = dmp.diff_main(a[0], a[1], False)
+    dmp.diff_charsToLines(diffs, a[2])
+    return diffs
+
+pprint(line_diff(src, patched))
