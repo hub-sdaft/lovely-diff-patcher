@@ -17,7 +17,6 @@ You can install the package with `pip`
 > **NOTE**: The command `lovely-diff-patcher` will be added to the system's current path
 
 ## Usage
-Usage:
 
     lovely-diff-patcher [-h] [-p [PRIORITY]] [-d] [-v [MANIFEST_VERSION]] [--version] source patched [output]
 
