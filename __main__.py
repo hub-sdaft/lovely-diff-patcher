@@ -12,6 +12,15 @@ DIFF_DELETE = -1
 DIFF_INSERT = 1
 DIFF_EQUAL = 0
 
+
+def panic(message):
+    print(f"[ERROR] {message}")
+    exit(1)
+
+def info(message):
+    print(f"[INFO] {message}")
+
+
 def line_diff(source, patched):
     dmp = DMP()
     a = dmp.diff_linesToChars(source, patched)
@@ -30,13 +39,6 @@ def is_text_unique(text: str, source: str) -> bool:
         raise ValueError(f"Line {text} is not present in source")
     
     return (matches == 1)
-
-def panic(message):
-    print(f"[ERROR] {message}")
-    exit(1)
-
-def info(message):
-    print(f"[INFO] {message}")
 
 def apply_patch(patch: dict[str, str], source: str) -> str:
     pos = patch.get("position")
