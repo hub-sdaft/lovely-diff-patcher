@@ -4,7 +4,7 @@ from .patcher import __find_patches, __panic, __info, __apply_patch, __create_to
 
 import argparse
 
-__version__ = "0.2.0"
+__version__ = "0.2.1"
 __author__ = "hub-sdaft"
 
 def patch_file(source_path: Path, patched_path: Path, output_path: Path,

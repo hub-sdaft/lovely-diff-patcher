@@ -4,7 +4,6 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "lovely-diff-patcher"
-dynamic = ["version"]
 authors = [
     {name="hub-sdaft"}
 ]
@@ -17,6 +16,11 @@ classifiers = [
 ]
 license = "MIT"
 license-files = ["LICEN[CS]E*"]
+dependencies = [
+    "diff-match-patch",
+]
+dynamic = ["version"]
+
 
 [project.urls]
 Homepage = "https://github.com/hub-sdaft/lovely-diff-patcher"
