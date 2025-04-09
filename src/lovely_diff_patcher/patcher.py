@@ -39,7 +39,7 @@ def __apply_patch(patch: dict[str, str], source: str) -> str:
     payload = patch.get("payload")
 
     if not __is_text_unique(pattern, source):
-        raise ValueError("Cannot apply patch with non-unique pattern")
+        raise ValueError(f"Cannot apply patch with non-unique pattern: '{pattern}'")
 
     if pos == 'at':
         return re.sub(re.escape(pattern), payload, source)
@@ -60,6 +60,11 @@ def __find_patches(src, patched):
 
     while i < len(diff_blocks):
         diff_action, diff_text = diff_blocks[i]
+        diff_text = diff_text.strip()
+
+        if diff_text == "":
+            i += 1
+            continue
 
         def find_unique_pattern(search_range):
             for j in search_range:
@@ -87,7 +92,7 @@ def __find_patches(src, patched):
             is_diff_unique = __is_text_unique(diff_text, src)
             
             if i + 1 < len(diff_blocks) and diff_blocks[i+1][0] == __DIFF_INSERT:
-                new_text = diff_blocks[i+1][1]
+                new_text = diff_blocks[i+1][1].strip()
 
                 if is_diff_unique:
                     patch = {
@@ -95,8 +100,6 @@ def __find_patches(src, patched):
                         "payload": new_text,
                         "position": "at",
                     }
-                    patches.append(patch)
-                    src = __apply_patch(patch, src)
 
                 # Pattern is not unique!
                 else:
@@ -114,9 +117,9 @@ def __find_patches(src, patched):
                     if unique_pattern is None:
                         raise ValueError(
                             f"Cannot find target for substitution from:\n"
-                            f"{diff_text}\n"
+                            f"'{diff_text}'\n"
                             "to:\n"
-                            f"{new_text}"
+                            f"'{new_text}'"
                         )
                     
                     patch = {
@@ -124,8 +127,6 @@ def __find_patches(src, patched):
                         "payload": replace_with,
                         "position": "at"
                     }
-                    patches.append(patch)
-                    src = __apply_patch(patch, src)
 
                 i += 1
 
@@ -136,10 +137,14 @@ def __find_patches(src, patched):
                         "payload": "",
                         "position": "at"
                     }
-                    patches.append(patch)
-                    src = __apply_patch(patch, src)
                 else:
-                    raise ValueError("Cannot determine which line to delete. You tried to delete this text: ...")
+                    raise ValueError(
+                        "Cannot determine which line to delete, containing:\n"
+                        f"'{diff_text}'"
+                    )
+
+            patches.append(patch)
+            src = __apply_patch(patch, src)
 
         # INSERT ######################################################################
         # Insert directly: find a unique pattern as reference
@@ -186,7 +191,7 @@ pattern = '''
 payload = '''
 {patch.get("payload")}'''
 position = "{patch.get("position")}"
-match_indent = false
+match_indent = true
 times = 1
 
 """
