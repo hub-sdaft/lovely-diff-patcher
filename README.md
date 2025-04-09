@@ -5,7 +5,11 @@ Given a source file and a patched file, it creates the TOML file that patches
 the source in the patched exactly, if possible.
 
 ## Installation
-TODO
+
+1. Install the package with `pip`
+
+        pip install git+https://github.com/hub-sdaft/lovely-diff-patcher
+
 
 ## Usage
 Usage:
@@ -15,13 +19,11 @@ Usage:
 > Use `-h` to get help and see this exact message
 
 ### Positional Arguments
-
 * `source`: The path to the un-patched source file
 * `patched`: The path to the already patched file
 * `output`: The path to the output TOML patch file
 
 ### Options
-
 * `-h`: show the help message
 * `-p [PRIORITY], --priority [PRIORITY]`: The priority value to specify in the output file's manifest metadata. Defaults to 0.
 * `-d, --dump-lua`: Whether to set the dump_lua flag in the output file's manifest metadata
@@ -30,4 +32,4 @@ Usage:
 
 ## Credits
 * hub-sdaft
-* [ethangree-dev/lovely-injector](https://github.com/ethangreen-dev/lovely-injector)
+* Lovely Injector repository: [ethangree-dev/lovely-injector](https://github.com/ethangreen-dev/lovely-injector)
