@@ -1,32 +1,27 @@
 from diff_match_patch import diff_match_patch as DMP
-from pathlib import Path
 
-import argparse
 import re
 
-__version__ = "0.1.0"
+__DIFF_DELETE = -1
+__DIFF_INSERT = 1
+__DIFF_EQUAL = 0
 
-DIFF_DELETE = -1
-DIFF_INSERT = 1
-DIFF_EQUAL = 0
-
-
-def panic(message):
+def __panic(message):
     print(f"[ERROR] {message}")
     exit(1)
 
-def info(message):
+def __info(message):
     print(f"[INFO] {message}")
 
 
-def line_diff(source, patched):
+def __line_diff(source, patched):
     dmp = DMP()
     a = dmp.diff_linesToChars(source, patched)
     diffs = dmp.diff_main(a[0], a[1], False)
     dmp.diff_charsToLines(diffs, a[2])
     return diffs
 
-def is_text_unique(text: str, source: str) -> bool:
+def __is_text_unique(text: str, source: str) -> bool:
     matches = 0
     for _ in re.finditer(re.escape(text), source):
         matches += 1
@@ -38,12 +33,12 @@ def is_text_unique(text: str, source: str) -> bool:
     
     return (matches == 1)
 
-def apply_patch(patch: dict[str, str], source: str) -> str:
+def __apply_patch(patch: dict[str, str], source: str) -> str:
     pos = patch.get("position")
     pattern = patch.get("pattern")
     payload = patch.get("payload")
 
-    if not is_text_unique(pattern, source):
+    if not __is_text_unique(pattern, source):
         raise ValueError("Cannot apply patch with non-unique pattern")
 
     if pos == 'at':
@@ -58,9 +53,9 @@ def apply_patch(patch: dict[str, str], source: str) -> str:
     else:
         raise ValueError(f"Invalid position '{pos}'")
 
-def find_patches(src, patched):
+def __find_patches(src, patched):
     i = 0
-    diff_blocks = line_diff(src, patched)
+    diff_blocks = __line_diff(src, patched)
     patches: list[dict] = [] 
 
     while i < len(diff_blocks):
@@ -70,7 +65,7 @@ def find_patches(src, patched):
             for j in search_range:
                 other_diff_action, other_diff_text = diff_blocks[j]
             
-                if other_diff_action != DIFF_EQUAL:
+                if other_diff_action != __DIFF_EQUAL:
                     continue
                 
                 lines = other_diff_text.split("\n")
@@ -78,20 +73,20 @@ def find_patches(src, patched):
 
                 for line in lines:
                     current_target += line
-                    if is_text_unique(current_target, src):
+                    if __is_text_unique(current_target, src):
                         return current_target
                 
                 return None
 
         # EQUAL ##########################################
-        if diff_action == DIFF_EQUAL:
+        if diff_action == __DIFF_EQUAL:
             pass
 
         # DELETE ###########################################
-        elif diff_action == DIFF_DELETE:
-            is_diff_unique = is_text_unique(diff_text, src)
+        elif diff_action == __DIFF_DELETE:
+            is_diff_unique = __is_text_unique(diff_text, src)
             
-            if i + 1 < len(diff_blocks) and diff_blocks[i+1][0] == DIFF_INSERT:
+            if i + 1 < len(diff_blocks) and diff_blocks[i+1][0] == __DIFF_INSERT:
                 new_text = diff_blocks[i+1][1]
 
                 if is_diff_unique:
@@ -101,7 +96,7 @@ def find_patches(src, patched):
                         "position": "at",
                     }
                     patches.append(patch)
-                    src = apply_patch(patch, src)
+                    src = __apply_patch(patch, src)
 
                 # Pattern is not unique!
                 else:
@@ -130,7 +125,7 @@ def find_patches(src, patched):
                         "position": "at"
                     }
                     patches.append(patch)
-                    src = apply_patch(patch, src)
+                    src = __apply_patch(patch, src)
 
                 i += 1
 
@@ -142,13 +137,13 @@ def find_patches(src, patched):
                         "position": "at"
                     }
                     patches.append(patch)
-                    src = apply_patch(patch, src)
+                    src = __apply_patch(patch, src)
                 else:
                     raise ValueError("Cannot determine which line to delete. You tried to delete this text: ...")
 
         # INSERT ######################################################################
         # Insert directly: find a unique pattern as reference
-        elif diff_action == DIFF_INSERT:
+        elif diff_action == __DIFF_INSERT:
             # Find unique target in blocks before
             unique_pattern = find_unique_pattern(range(i-1, 0, -1))
             position = "after"
@@ -167,13 +162,13 @@ def find_patches(src, patched):
                 "position": position
             }
             patches.append(patch)
-            src = apply_patch(patch, src)
+            src = __apply_patch(patch, src)
             
         i += 1
 
     return patches
 
-def create_toml_file(patches, target, version, dump_lua, priority, compact = False):
+def __create_toml_file(patches, target, version, dump_lua, priority, compact = False):
     toml = f'''# Generated with lovely-diff-patcher
 [manifest]
 version = "{version}"
@@ -196,98 +191,3 @@ times = 1
 
 """
     return toml
-
-def main(source_path: Path, patched_path: Path, output_path: Path,
-         priority: int, dump_lua: bool, manifest_version: str):
-    
-    with open(source_path, "r") as f:
-        source_content = str(f.read())
-
-    with open(patched_path, "r") as f:
-        patched_content = str(f.read())
-    
-    # Find the patches
-    try:
-        patches = find_patches(source_content, patched_content)
-    except Exception as e:
-        panic(e)
-
-    len_patches = len(patches)
-    info(f"Found {len_patches} patch{'' if len_patches == 1 else 'es'}")
-
-    # Cross check
-    repatched = source_content
-    for patch in patches:
-        repatched = apply_patch(patch, repatched)
-    if repatched == patched_content:
-        info(f"Cross check passed")
-
-    # Create output
-    output = create_toml_file(patches, source_path, manifest_version, dump_lua, priority)
-    
-    with open(output_path, "w") as f:
-        f.write(output)
-
-    info(f"Patch file written successfully at {output_path}")
-
-
-if __name__ == "__main__":
-    argparser = argparse.ArgumentParser(
-        prog = "lovely-diff-patcher",
-        description = "Creates a TOML patch file to be used with the Lovely Injector"
-    )
-
-    argparser.register('type', 'path', lambda s: Path(s))
-
-    argparser.add_argument(
-        "source", type="path",
-        help="The path to the un-patched source file"
-    )
-    argparser.add_argument(
-        "patched", type="path",
-        help="The path to the already patched file"
-    )
-    argparser.add_argument(
-        "output", type="path",
-        nargs="?", default="lovely.toml",
-        help="The path to the output TOML patch file. Defaults to 'lovely.toml'."
-    )
-
-    argparser.add_argument(
-        "-p", "--priority", type=int,
-        nargs="?", default=0,
-        help="The priority value to specify in the output file's manifest metadata. Defaults to 0."
-    )
-    argparser.add_argument(
-        "-d", "--dump-lua", action="store_true",
-        help="Whether to set the dump_lua flag in the output file's manifest metadata"
-    )
-    argparser.add_argument(
-        "-v", "--manifest-version", type=str,
-        nargs="?", default="1.0.0",
-        help="The version to specify in the output file's manifest metadata. Defaults to 1.0.0."
-    )
-
-    argparser.add_argument(
-        "--version", action="version",
-        version=f"%(prog)s {__version__}"
-    )
-
-    args = argparser.parse_args()
-    
-    source_path = Path.resolve(args.source)
-    if not Path.exists(source_path):
-        panic(f"Source path '{args.source}' does not exist")
-    
-    patched_path = Path.resolve(args.patched)
-    if not Path.exists(patched_path):
-        panic(f"Patched path '{args.patched}' does not exist")
-
-    main(
-        source_path=args.source.as_posix(),
-        patched_path=args.patched.as_posix(),
-        output_path=args.output.as_posix(),
-        priority=args.priority,
-        dump_lua=args.dump_lua,
-        manifest_version=args.manifest_version
-    )
