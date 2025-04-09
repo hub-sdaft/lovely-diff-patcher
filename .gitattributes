@@ -1,2 +1,5 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# git-archive: ignore .gitignore, .gitattributes, .github/ etc. 
+.git* export-ignore
