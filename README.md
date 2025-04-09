@@ -4,12 +4,17 @@ Python utility for patching files with Lovely Injector.
 Given a source file and a patched file, it creates the TOML file that patches
 the source in the patched exactly, if possible.
 
+## Requirements
+* Python >= 3.10
+* `pip`
+
 ## Installation
 
-1. Install the package with `pip`
+You can install the package with `pip`
+    
+    pip install git+https://github.com/hub-sdaft/lovely-diff-patcher
 
-        pip install git+https://github.com/hub-sdaft/lovely-diff-patcher
-
+> **NOTE**: The command `lovely-diff-patcher` will be added to the system's current path
 
 ## Usage
 Usage:
@@ -33,3 +38,4 @@ Usage:
 ## Credits
 * hub-sdaft
 * Lovely Injector repository: [ethangree-dev/lovely-injector](https://github.com/ethangreen-dev/lovely-injector)
+* [dmsnell/diff-match-patch](https://github.com/dmsnell/diff-match-patch/), originally by Neil Fraser
