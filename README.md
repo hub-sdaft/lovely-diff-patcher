@@ -12,7 +12,7 @@ the source in the patched exactly, if possible.
 
 You can install the package with `pip`
     
-    pip install git+https://github.com/hub-sdaft/lovely-diff-patcher
+    pip install https://github.com/hub-sdaft/lovely-diff-patcher/archive/stable.zip
 
 > **NOTE**: The command `lovely-diff-patcher` will be added to the system's current path
 
