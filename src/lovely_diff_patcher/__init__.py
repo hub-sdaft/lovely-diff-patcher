@@ -1,6 +1,7 @@
 from diff_match_patch import diff_match_patch as DMP
 from pathlib import Path
 from .patcher import __find_patches, __panic, __info, __apply_patch, __create_toml_file
+from re import sub
 
 import argparse
 
@@ -24,13 +25,6 @@ def patch_file(source_path: Path, patched_path: Path, output_path: Path,
 
     len_patches = len(patches)
     __info(f"Found {len_patches} patch{'' if len_patches == 1 else 'es'}")
-
-    # Cross check
-    repatched = source_content
-    for patch in patches:
-        repatched = __apply_patch(patch, repatched)
-    if repatched == patched_content:
-        __info(f"Cross check passed")
 
     # Create output
     output = __create_toml_file(patches, source_path, manifest_version, dump_lua, priority)
