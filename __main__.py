@@ -1,12 +1,10 @@
 from diff_match_patch import diff_match_patch as DMP
-from enum import Enum, auto
 from pathlib import Path
-from pprint import pprint
 
 import argparse
 import re
 
-__version__ = "0.0.1"
+__version__ = "0.1.0"
 
 DIFF_DELETE = -1
 DIFF_INSERT = 1
