@@ -29,7 +29,7 @@ def __is_text_unique(text: str, source: str) -> bool:
             break
     
     if matches == 0:
-        raise ValueError(f"Line {text} is not present in source")
+        raise ValueError(f"Line not present in source:\n{text}'")
     
     return (matches == 1)
 
@@ -39,7 +39,7 @@ def __apply_patch(patch: dict[str, str], source: str) -> str:
     payload = patch.get("payload")
 
     if not __is_text_unique(pattern, source):
-        raise ValueError(f"Cannot apply patch with non-unique pattern: '{pattern}'")
+        raise ValueError(f"Cannot apply patch with non-unique pattern:\n'{pattern}'")
 
     if pos == 'at':
         return re.sub(re.escape(pattern), payload, source)
@@ -77,7 +77,7 @@ def __find_patches(src, patched):
                 current_target = ""
 
                 for line in lines:
-                    current_target += line
+                    current_target += line + "\n"
                     if __is_text_unique(current_target, src):
                         return current_target
                 
@@ -92,7 +92,7 @@ def __find_patches(src, patched):
             is_diff_unique = __is_text_unique(diff_text, src)
             
             if i + 1 < len(diff_blocks) and diff_blocks[i+1][0] == __DIFF_INSERT:
-                new_text = diff_blocks[i+1][1].strip()
+                new_text = diff_blocks[i+1][1] #.strip()
 
                 if is_diff_unique:
                     patch = {
@@ -159,7 +159,7 @@ def __find_patches(src, patched):
                 position = "before"
 
             if unique_pattern is None:
-                raise ValueError("Cannot find a target for this insert.")
+                raise ValueError(f"Cannot find a target for insertion of text:\n'{diff_text}'")
             
             patch = {
                 "pattern": unique_pattern,
