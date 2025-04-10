@@ -5,7 +5,7 @@ from re import sub
 
 import argparse
 
-__version__ = "0.2.2"
+__version__ = "0.2.3"
 __author__ = "hub-sdaft"
 
 def patch_file(source_path: Path, patched_path: Path, output_path: Path,
