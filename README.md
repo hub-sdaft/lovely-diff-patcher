@@ -10,11 +10,29 @@ the source in the patched exactly, if possible.
 
 ## Installation
 
-You can install the package with `pip`
-    
-    pip install https://github.com/hub-sdaft/lovely-diff-patcher/archive/stable.zip
+1. If `pip` is not present on your system, install it to the latest version
 
-> **NOTE**: The command `lovely-diff-patcher` will be added to the system's current path
+2. Install the package through `pip`
+
+    * Windows: `py -m pip install https://github.com/hub-sdaft/lovely-diff-patcher/archive/stable.zip`
+    * Linux/MacOS: `python3 -m pip install https://github.com/hub-sdaft/lovely-diff-patcher/archive/stable.zip`
+
+    > **NOTE**: The command `lovely-diff-patcher` will be added to the system's current path
+
+3. In order to use the `lovely-diff-patcher` command, make sure that the Python Scripts folder is in the system's PATH.
+If the pip installation process returns a warning, like the following:
+
+    * On Windows:
+
+            WARNING: The script lovely-diff-patcher.exe is installed in 'C:\Users\user\AppData\Local\Programs\Python\Python312\Scripts' which is not on PATH.
+            Consider adding this directory to PATH or, if you prefer to suppress this warning, use --no-warn-script-location.
+
+    * On Linux:
+
+            WARNING: The script lovely-diff-patcher is installed in '/home/user/.local/bin' which is not on PATH.
+            Consider adding this directory to PATH or, if you prefer to suppress this warning, use --no-warn-script-location.
+
+    make sure to follow the instructions given.
 
 ## Usage
 
